@@ -97,9 +97,9 @@ $$.BoundClosure$0 = [P, {"": "BoundClosure;_self,_target,_receiver,__js_helper$_
 
 $$.Closure$0 = [S, {"": "Closure;call$0,$name"}];
 
-$$.Closure$2 = [H, {"": "Closure;call$2,$name", $is_args2: true}];
+$$.Closure$1 = [S, {"": "Closure;call$1,$name", $is_args1: true}];
 
-$$.Closure$1 = [H, {"": "Closure;call$1,$name", $is_args1: true}];
+$$.Closure$2 = [H, {"": "Closure;call$2,$name", $is_args2: true}];
 
 $$.Closure$7 = [H, {"": "Closure;call$7,$name"}];
 
@@ -201,8 +201,7 @@ main: function() {
   t1 = P.List_List(null, P.Point);
   H.setRuntimeTypeInfo(t1, [P.Point]);
   game = new S.Game(null, null, true, t1);
-  S.Display_init();
-  game.client = S.DroidAgeClient$(game);
+  game.init$0();
   t1 = new S.GameTimer(P.DateTime$_now().millisecondsSinceEpoch, P.DateTime$_now().millisecondsSinceEpoch, null, 0.06, 0, 0, 0, null);
   t1.game = game;
   game.timer = t1;
@@ -235,10 +234,67 @@ Display_renderRect: function(x, y, w, h, color, fill) {
   }
 },
 
+Keyboard_init: function() {
+  var t1, t2;
+  t1 = new W._EventStream(window, C.EventStreamProvider_keydown._eventType, false);
+  H.setRuntimeTypeInfo(t1, [null]);
+  t2 = new W._EventStreamSubscription(0, t1._html$_target, t1._eventType, W._wrapZone(new S.Keyboard_init_closure()), t1._useCapture);
+  H.setRuntimeTypeInfo(t2, [H.getRuntimeTypeArgument(t1, "_EventStream", 0)]);
+  t2._tryResume$0();
+  t2 = new W._EventStream(window, C.EventStreamProvider_keyup._eventType, false);
+  H.setRuntimeTypeInfo(t2, [null]);
+  t1 = new W._EventStreamSubscription(0, t2._html$_target, t2._eventType, W._wrapZone(new S.Keyboard_init_closure0()), t2._useCapture);
+  H.setRuntimeTypeInfo(t1, [H.getRuntimeTypeArgument(t2, "_EventStream", 0)]);
+  t1._tryResume$0();
+},
+
+Mouse_init: function() {
+  var t1, t2;
+  t1 = new W._EventStream(window, C.EventStreamProvider_mousedown._eventType, false);
+  H.setRuntimeTypeInfo(t1, [null]);
+  t2 = new W._EventStreamSubscription(0, t1._html$_target, t1._eventType, W._wrapZone(S.Mouse_mouseDown$closure), t1._useCapture);
+  H.setRuntimeTypeInfo(t2, [H.getRuntimeTypeArgument(t1, "_EventStream", 0)]);
+  t2._tryResume$0();
+  t2 = new W._EventStream(window, C.EventStreamProvider_mousemove._eventType, false);
+  H.setRuntimeTypeInfo(t2, [null]);
+  t1 = new W._EventStreamSubscription(0, t2._html$_target, t2._eventType, W._wrapZone(S.Mouse_mouseMove$closure), t2._useCapture);
+  H.setRuntimeTypeInfo(t1, [H.getRuntimeTypeArgument(t2, "_EventStream", 0)]);
+  t1._tryResume$0();
+},
+
+Mouse_mouseDown: function(e) {
+  C.JSNull_methods.$indexSet($.Mouse__buttons, J.get$button$x(e), true);
+},
+
+Mouse_mouseMove: function(e) {
+  var t1, t2;
+  t1 = J.get$page$x(e);
+  t2 = window.innerWidth;
+  if (typeof t2 !== "number")
+    throw H.iae(t2);
+  $.Mouse__x = J.$mul$n(t1.x, 640 / t2);
+  t2 = new P.Point(e.pageX, e.pageY);
+  H.setRuntimeTypeInfo(t2, [null]);
+  t1 = window.innerHeight;
+  if (typeof t1 !== "number")
+    throw H.iae(t1);
+  $.Mouse__y = J.$mul$n(t2.y, 480 / t1);
+},
+
 Game: {"": "Object;client,timer,running,points",
+  init$0: function() {
+    S.Mouse_init();
+    S.Keyboard_init();
+    S.Display_init();
+    this.client = S.DroidAgeClient$(this);
+  },
   render$0: function() {
+    var t1, t2;
     S.Display_renderRect(0, 0, 640, 480, "black", true);
     H.IterableMixinWorkaround_forEach(this.points, new S.Game_render_closure());
+    t1 = $.Mouse__x;
+    t2 = $.Mouse__y;
+    S.Display_renderRect(new D.Vector2(t1, t2)._x, new D.Vector2(t1, t2)._y, 5, 5, "white", true);
   },
   addPoint$2: function(x, y) {
     var p = new P.Point(x, y);
@@ -270,6 +326,14 @@ GameTimer: {"": "Object;ltr,lt,now,msPt,delta,ticks,frames,game",
     this.lt = this.now;
     for (; t1 = this.delta, t2 = this.game, t1 >= 1;) {
       t2.toString;
+      t1 = $.get$Keyboard__onceKeys();
+      if (t1._collection$_length > 0) {
+        t1._keys = null;
+        t1._rest = null;
+        t1._nums = null;
+        t1._strings = null;
+        t1._collection$_length = 0;
+      }
       this.ticks = this.ticks + 1;
       this.delta = this.delta - 1;
     }
@@ -295,6 +359,31 @@ GameTimer: {"": "Object;ltr,lt,now,msPt,delta,ticks,frames,game",
   get$update: function() {
     return new S.BoundClosure$1(this, S.GameTimer.prototype.update$1, null, "update$1");
   }
+},
+
+Keyboard_init_closure: {"": "Closure;",
+  call$1: function(e) {
+    var t1;
+    if (!$.get$Keyboard__keys().containsKey$1(J.get$keyCode$x(e))) {
+      t1 = $.get$Keyboard__keys();
+      t1.$indexSet(t1, e.keyCode, e.timeStamp);
+    }
+    if (!$.get$Keyboard__onceKeys().containsKey$1(e.keyCode)) {
+      t1 = $.get$Keyboard__onceKeys();
+      t1.$indexSet(t1, e.keyCode, e.timeStamp);
+    }
+  },
+  $is_args1: true
+},
+
+Keyboard_init_closure0: {"": "Closure;",
+  call$1: function(e) {
+    var t1 = $.get$Keyboard__keys();
+    t1.remove$1(t1, J.get$keyCode$x(e));
+    t1 = $.get$Keyboard__onceKeys();
+    t1.remove$1(t1, e.keyCode);
+  },
+  $is_args1: true
 },
 
 DroidAgeClient: {"": "Object;socket,parser,game",
@@ -522,6 +611,12 @@ JSNumber: {"": "num/Interceptor;",
     }
     throw H.wrapException(P.UnsupportedError$('' + receiver));
   },
+  roundToDouble$0: function(receiver) {
+    if (receiver < 0)
+      return -Math.round(-receiver);
+    else
+      return Math.round(receiver);
+  },
   toString$0: function(receiver) {
     if (receiver === 0 && 1 / receiver < 0)
       return "-0.0";
@@ -531,10 +626,20 @@ JSNumber: {"": "num/Interceptor;",
   get$hashCode: function(receiver) {
     return receiver & 0x1FFFFFFF;
   },
+  $add: function(receiver, other) {
+    if (typeof other !== "number")
+      throw H.wrapException(new P.ArgumentError(other));
+    return receiver + other;
+  },
   $sub: function(receiver, other) {
     if (typeof other !== "number")
       throw H.wrapException(new P.ArgumentError(other));
     return receiver - other;
+  },
+  $mul: function(receiver, other) {
+    if (typeof other !== "number")
+      throw H.wrapException(new P.ArgumentError(other));
+    return receiver * other;
   },
   $tdiv: function(receiver, other) {
     if ((receiver | 0) === receiver && (other | 0) === other && 0 !== other && -1 !== other)
@@ -592,6 +697,11 @@ JSString: {"": "String/Interceptor;",
     if (index >= receiver.length)
       throw H.wrapException(P.RangeError$value(index));
     return receiver.charCodeAt(index);
+  },
+  $add: function(receiver, other) {
+    if (typeof other !== "string")
+      throw H.wrapException(new P.ArgumentError(other));
+    return receiver + other;
   },
   split$1: function(receiver, pattern) {
     return receiver.split(pattern);
@@ -4277,6 +4387,18 @@ _HashMap: {"": "Object;_collection$_length,_strings,_nums,_rest,_keys",
     H.setRuntimeTypeInfo(t1, [H.getRuntimeTypeArgument(this, "_HashMap", 0)]);
     return H.MappedIterable_MappedIterable(t1, new P._HashMap_values_closure(this), H.getRuntimeTypeArgument(t1, "IterableBase", 0), null);
   },
+  containsKey$1: function(key) {
+    var nums, rest;
+    if (typeof key === "number" && (key & 0x3ffffff) === key) {
+      nums = this._nums;
+      return nums == null ? false : nums[key] != null;
+    } else {
+      rest = this._rest;
+      if (rest == null)
+        return false;
+      return this._findBucketIndex$2(rest[this._computeHashCode$1(key)], key) >= 0;
+    }
+  },
   $index: function(_, key) {
     var strings, t1, entry, nums, rest, bucket, index;
     if (typeof key === "string" && key !== "__proto__") {
@@ -4346,6 +4468,23 @@ _HashMap: {"": "Object;_collection$_length,_strings,_nums,_rest,_keys",
       }
     }
   },
+  remove$1: function(_, key) {
+    var rest, bucket, index;
+    if (typeof key === "number" && (key & 0x3ffffff) === key)
+      return this._removeHashTableEntry$2(this._nums, key);
+    else {
+      rest = this._rest;
+      if (rest == null)
+        return;
+      bucket = rest[this._computeHashCode$1(key)];
+      index = this._findBucketIndex$2(bucket, key);
+      if (index < 0)
+        return;
+      this._collection$_length = this._collection$_length - 1;
+      this._keys = null;
+      return bucket.splice(index, 2)[1];
+    }
+  },
   forEach$1: function(_, action) {
     var keys, $length, i, key;
     keys = this._computeKeys$0();
@@ -4404,6 +4543,17 @@ _HashMap: {"": "Object;_collection$_length,_strings,_nums,_rest,_keys",
     }
     P._HashMap__setTableEntry(table, key, value);
   },
+  _removeHashTableEntry$2: function(table, key) {
+    var value;
+    if (table != null && table[key] != null) {
+      value = P._HashMap__getTableEntry(table, key);
+      delete table[key];
+      this._collection$_length = this._collection$_length - 1;
+      this._keys = null;
+      return value;
+    } else
+      return;
+  },
   _computeHashCode$1: function(key) {
     return J.get$hashCode$(key) & 0x3ffffff;
   },
@@ -4419,6 +4569,11 @@ _HashMap: {"": "Object;_collection$_length,_strings,_nums,_rest,_keys",
   },
   $isMap: true,
   static: {
+_HashMap__getTableEntry: function(table, key) {
+  var entry = table[key];
+  return entry === table ? null : entry;
+},
+
 _HashMap__setTableEntry: function(table, key, value) {
   if (value == null)
     table[key] = table;
@@ -5319,9 +5474,17 @@ DateTime_toString_twoDigits: {"": "Closure;",
   $is_args1: true
 },
 
-Duration: {"": "Object;_duration",
+Duration: {"": "Object;_duration<",
+  $add: function(_, other) {
+    return P.Duration$(0, 0, this._duration + other.get$_duration(), 0, 0, 0);
+  },
   $sub: function(_, other) {
     return P.Duration$(0, 0, C.JSNumber_methods.$sub(this._duration, other.get$_duration()), 0, 0, 0);
+  },
+  $mul: function(_, factor) {
+    if (typeof factor !== "number")
+      throw H.iae(factor);
+    return P.Duration$(0, 0, C.JSNumber_methods.toInt$0(C.JSNumber_methods.roundToDouble$0(this._duration * factor)), 0, 0, 0);
   },
   $lt: function(_, other) {
     return C.JSNumber_methods.$lt(this._duration, other.get$_duration());
@@ -5713,6 +5876,13 @@ ImageElement: {"": "HtmlElement;height},width}", "%": "HTMLImageElement"},
 
 InputElement: {"": "HtmlElement;height},width}", "%": "HTMLInputElement"},
 
+KeyboardEvent: {"": "UIEvent;",
+  get$keyCode: function(receiver) {
+    return receiver.keyCode;
+  },
+  "%": "KeyboardEvent"
+},
+
 MediaElement: {"": "HtmlElement;error=", "%": "HTMLAudioElement;HTMLMediaElement"},
 
 MessageEvent: {"": "Event;",
@@ -5723,6 +5893,8 @@ MessageEvent: {"": "Event;",
 },
 
 MidiMessageEvent: {"": "Event;data=", "%": "MIDIMessageEvent"},
+
+MouseEvent: {"": "UIEvent;button=", "%": "DragEvent|MSPointerEvent|MouseEvent|MouseScrollEvent|MouseWheelEvent|PointerEvent|WheelEvent"},
 
 Node: {"": "EventTarget;",
   toString$0: function(receiver) {
@@ -5740,7 +5912,14 @@ SpeechRecognitionError: {"": "Event;error=", "%": "SpeechRecognitionError"},
 
 TextEvent: {"": "UIEvent;data=", "%": "TextEvent"},
 
-UIEvent: {"": "Event;", "%": "DragEvent|FocusEvent|KeyboardEvent|MSPointerEvent|MouseEvent|MouseScrollEvent|MouseWheelEvent|PointerEvent|SVGZoomEvent|TouchEvent|WheelEvent;UIEvent"},
+UIEvent: {"": "Event;",
+  get$page: function(receiver) {
+    var t1 = new P.Point(receiver.pageX, receiver.pageY);
+    H.setRuntimeTypeInfo(t1, [null]);
+    return t1;
+  },
+  "%": "FocusEvent|SVGZoomEvent|TouchEvent;UIEvent"
+},
 
 VideoElement: {"": "MediaElement;height},width}", "%": "HTMLVideoElement"},
 
@@ -5907,10 +6086,27 @@ Point: {"": "Object;x>,y>",
     t2 = J.get$hashCode$(this.y);
     return P._JenkinsSmiHash_finish(P._JenkinsSmiHash_combine(P._JenkinsSmiHash_combine(0, t1), t2));
   },
+  $add: function(_, other) {
+    var t1, t2;
+    t1 = J.getInterceptor$x(other);
+    t2 = J.$add$ns(this.x, t1.get$x(other));
+    t1 = J.$add$ns(this.y, t1.get$y(other));
+    t1 = new P.Point(t2, t1);
+    H.setRuntimeTypeInfo(t1, [H.getRuntimeTypeArgument(this, "Point", 0)]);
+    return t1;
+  },
   $sub: function(_, other) {
     var t1, t2;
     t1 = J.$sub$n(this.x, C.JSInt_methods.get$x(other));
     t2 = J.$sub$n(this.y, C.JSInt_methods.get$y(other));
+    t2 = new P.Point(t1, t2);
+    H.setRuntimeTypeInfo(t2, [H.getRuntimeTypeArgument(this, "Point", 0)]);
+    return t2;
+  },
+  $mul: function(_, factor) {
+    var t1, t2;
+    t1 = J.$mul$n(this.x, factor);
+    t2 = J.$mul$n(this.y, factor);
     t2 = new P.Point(t1, t2);
     H.setRuntimeTypeInfo(t2, [H.getRuntimeTypeArgument(this, "Point", 0)]);
     return t2;
@@ -6372,30 +6568,67 @@ convertNativeToDart_AcceptStructuredClone_walk: {"": "Closure;mustCopy_4,findSlo
   },
   $is_args1: true
 }}],
+["", "../universal/src/math/vector2.dart", , D, {
+Vector2: {"": "Object;_x,_y",
+  get$x: function(_) {
+    return this._x;
+  },
+  get$y: function(_) {
+    return this._y;
+  },
+  $add: function(_, other) {
+    var t1 = J.getInterceptor$x(other);
+    return new D.Vector2(J.$add$ns(this._x, t1.get$x(other)), J.$add$ns(this._y, t1.get$y(other)));
+  },
+  $sub: function(_, other) {
+    return new D.Vector2(J.$sub$n(this._x, C.JSInt_methods.get$x(other)), J.$sub$n(this._y, C.JSInt_methods.get$y(other)));
+  },
+  $mul: function(_, other) {
+    var t1 = J.getInterceptor$x(other);
+    return new D.Vector2(J.$mul$n(this._x, t1.get$x(other)), J.$mul$n(this._y, t1.get$y(other)));
+  },
+  length$0: function(_) {
+    var t1, t2;
+    t1 = this._x;
+    t2 = this._y;
+    t2 = J.$add$ns(J.$mul$n(t1, t1), J.$mul$n(t2, t2));
+    if (typeof t2 !== "number")
+      H.throwExpression(new P.ArgumentError(t2));
+    return Math.sqrt(t2);
+  },
+  get$length: function(_receiver) {
+    return new H.BoundClosure$i0(this, D.Vector2.prototype.length$0, _receiver, "length$0");
+  }
+}}],
 ]);
 Isolate.$finishClasses($$, $, null);
 $$ = null;
 
 // Static function getters
 init.globalFunctions.main$closure = S.main$closure = new S.Closure$0(S.main, "main$closure");
+init.globalFunctions.Mouse_mouseDown$closure = S.Mouse_mouseDown$closure = new S.Closure$1(S.Mouse_mouseDown, "Mouse_mouseDown$closure");
+init.globalFunctions.Mouse_mouseMove$closure = S.Mouse_mouseMove$closure = new S.Closure$1(S.Mouse_mouseMove, "Mouse_mouseMove$closure");
 init.globalFunctions.IsolateNatives__processWorkerMessage$closure = H.IsolateNatives__processWorkerMessage$closure = new H.Closure$2(H.IsolateNatives__processWorkerMessage, "IsolateNatives__processWorkerMessage$closure");
-init.globalFunctions.Primitives__throwFormatException$closure = H.Primitives__throwFormatException$closure = new H.Closure$1(H.Primitives__throwFormatException, "Primitives__throwFormatException$closure");
+init.globalFunctions.Primitives__throwFormatException$closure = H.Primitives__throwFormatException$closure = new S.Closure$1(H.Primitives__throwFormatException, "Primitives__throwFormatException$closure");
 init.globalFunctions.toStringWrapper$closure = H.toStringWrapper$closure = new S.Closure$0(H.toStringWrapper, "toStringWrapper$closure");
 init.globalFunctions.invokeClosure$closure = H.invokeClosure$closure = new H.Closure$7(H.invokeClosure, "invokeClosure$closure");
 init.globalFunctions.isAssignable$closure = H.isAssignable$closure = new H.Closure$2(H.isAssignable, "isAssignable$closure");
 init.globalFunctions._asyncRunCallback$closure = P._asyncRunCallback$closure = new S.Closure$0(P._asyncRunCallback, "_asyncRunCallback$closure");
-init.globalFunctions._nullDataHandler$closure = P._nullDataHandler$closure = new H.Closure$1(P._nullDataHandler, "_nullDataHandler$closure");
+init.globalFunctions._nullDataHandler$closure = P._nullDataHandler$closure = new S.Closure$1(P._nullDataHandler, "_nullDataHandler$closure");
 init.globalFunctions._nullErrorHandler$closure = P._nullErrorHandler$closure = new P.Closure$21(P._nullErrorHandler, "_nullErrorHandler$closure");
 init.globalFunctions._nullDoneHandler$closure = P._nullDoneHandler$closure = new S.Closure$0(P._nullDoneHandler, "_nullDoneHandler$closure");
 init.globalFunctions._defaultEquals$closure = P._defaultEquals$closure = new H.Closure$2(P._defaultEquals, "_defaultEquals$closure");
-init.globalFunctions._defaultHashCode$closure = P._defaultHashCode$closure = new H.Closure$1(P._defaultHashCode, "_defaultHashCode$closure");
+init.globalFunctions._defaultHashCode$closure = P._defaultHashCode$closure = new S.Closure$1(P._defaultHashCode, "_defaultHashCode$closure");
 init.globalFunctions.identical$closure = P.identical$closure = new H.Closure$2(P.identical, "identical$closure");
-init.globalFunctions.identityHashCode$closure = P.identityHashCode$closure = new H.Closure$1(P.identityHashCode, "identityHashCode$closure");
+init.globalFunctions.identityHashCode$closure = P.identityHashCode$closure = new S.Closure$1(P.identityHashCode, "identityHashCode$closure");
 // Runtime type support
 J.JSInt.$isint = true;
+J.JSInt.$isnum = true;
 J.JSInt.$isObject = true;
 J.JSDouble.$isdouble = true;
+J.JSDouble.$isnum = true;
 J.JSDouble.$isObject = true;
+J.JSNumber.$isnum = true;
 J.JSNumber.$isObject = true;
 J.JSString.$isString = true;
 J.JSString.$isObject = true;
@@ -6406,6 +6639,10 @@ W.MessageEvent.$isMessageEvent = true;
 W.MessageEvent.$isObject = true;
 S.DataParser.$isDataParser = true;
 S.DataParser.$isObject = true;
+W.KeyboardEvent.$isKeyboardEvent = true;
+W.KeyboardEvent.$isObject = true;
+W.MouseEvent.$isMouseEvent = true;
+W.MouseEvent.$isObject = true;
 P.ReceivePort.$isObject = true;
 H._IsolateEvent.$isObject = true;
 H._IsolateContext.$isObject = true;
@@ -6479,6 +6716,17 @@ J.getInterceptor$n = function(receiver) {
     return J.UnknownJavaScriptObject.prototype;
   return receiver;
 };
+J.getInterceptor$ns = function(receiver) {
+  if (typeof receiver == "number")
+    return J.JSNumber.prototype;
+  if (typeof receiver == "string")
+    return J.JSString.prototype;
+  if (receiver == null)
+    return receiver;
+  if (!(receiver instanceof P.Object))
+    return J.UnknownJavaScriptObject.prototype;
+  return receiver;
+};
 J.getInterceptor$s = function(receiver) {
   if (typeof receiver == "string")
     return J.JSString.prototype;
@@ -6500,9 +6748,14 @@ J.getInterceptor$x = function(receiver) {
 C.C__DelayedDone = new P._DelayedDone();
 C.C__RootZone = new P._RootZone();
 C.Duration_0 = new P.Duration(0);
+C.EventStreamProvider_keydown = new W.EventStreamProvider("keydown");
+C.EventStreamProvider_keyup = new W.EventStreamProvider("keyup");
 C.EventStreamProvider_message = new W.EventStreamProvider("message");
+C.EventStreamProvider_mousedown = new W.EventStreamProvider("mousedown");
+C.EventStreamProvider_mousemove = new W.EventStreamProvider("mousemove");
 C.JSArray_methods = J.JSArray.prototype;
 C.JSInt_methods = J.JSInt.prototype;
+C.JSNull_methods = J.JSNull.prototype;
 C.JSNumber_methods = J.JSNumber.prototype;
 C.JSString_methods = J.JSString.prototype;
 C.JS_CONST_0 = function(hooks) {
@@ -6637,6 +6890,9 @@ $.Display_canvas = null;
 $.Display_renderer = null;
 $.Display_xOffset = 0;
 $.Display_yOffset = 0;
+$.Mouse__buttons = null;
+$.Mouse__x = 0;
+$.Mouse__y = 0;
 $.lazyPort = null;
 $.ReceivePortImpl__nextFreeId = 1;
 $.Primitives_mirrorFunctionCacheName = "$cachedFunction";
@@ -6653,6 +6909,11 @@ $.Zone__current = C.C__RootZone;
 $.Expando__keyCount = 0;
 $.Device__isOpera = null;
 $.Device__isWebKit = null;
+J.$add$ns = function(receiver, a0) {
+  if (typeof receiver == "number" && typeof a0 == "number")
+    return receiver + a0;
+  return J.getInterceptor$ns(receiver).$add(receiver, a0);
+};
 J.$eq = function(receiver, a0) {
   if (receiver == null)
     return a0 == null;
@@ -6676,6 +6937,11 @@ J.$indexSet$ax = function(receiver, a0, a1) {
     return receiver[a0] = a1;
   return J.getInterceptor$ax(receiver).$indexSet(receiver, a0, a1);
 };
+J.$mul$n = function(receiver, a0) {
+  if (typeof receiver == "number" && typeof a0 == "number")
+    return receiver * a0;
+  return J.getInterceptor$n(receiver).$mul(receiver, a0);
+};
 J.$sub$n = function(receiver, a0) {
   if (typeof receiver == "number" && typeof a0 == "number")
     return receiver - a0;
@@ -6693,6 +6959,9 @@ J.fillRect$4$x = function(receiver, a0, a1, a2, a3) {
 J.forEach$1$ax = function(receiver, a0) {
   return J.getInterceptor$ax(receiver).forEach$1(receiver, a0);
 };
+J.get$button$x = function(receiver) {
+  return J.getInterceptor$x(receiver).get$button(receiver);
+};
 J.get$data$x = function(receiver) {
   return J.getInterceptor$x(receiver).get$data(receiver);
 };
@@ -6705,8 +6974,14 @@ J.get$hashCode$ = function(receiver) {
 J.get$iterator$ax = function(receiver) {
   return J.getInterceptor$ax(receiver).get$iterator(receiver);
 };
+J.get$keyCode$x = function(receiver) {
+  return J.getInterceptor$x(receiver).get$keyCode(receiver);
+};
 J.get$length$asx = function(receiver) {
   return J.getInterceptor$asx(receiver).get$length(receiver);
+};
+J.get$page$x = function(receiver) {
+  return J.getInterceptor$x(receiver).get$page(receiver);
 };
 J.getContext$1$x = function(receiver, a0) {
   return J.getInterceptor$x(receiver).getContext$1(receiver, a0);
@@ -6738,6 +7013,12 @@ J.strokeRect$4$x = function(receiver, a0, a1, a2, a3) {
 J.toString$0 = function(receiver) {
   return J.getInterceptor(receiver).toString$0(receiver);
 };
+Isolate.$lazy($, "_keys", "Keyboard__keys", "get$Keyboard__keys", function() {
+  return P.HashMap_HashMap(null, null, null, J.JSInt, J.JSInt);
+});
+Isolate.$lazy($, "_onceKeys", "Keyboard__onceKeys", "get$Keyboard__onceKeys", function() {
+  return P.HashMap_HashMap(null, null, null, J.JSInt, J.JSInt);
+});
 Isolate.$lazy($, "globalThis", "globalThis", "get$globalThis", function() {
   return function() { return this; }();
 });
@@ -7863,6 +8144,9 @@ function dart_precompiled($collectedClasses) {
   if ($desc instanceof Array)
     $desc = $desc[1];
   MouseEvent.prototype = $desc;
+  MouseEvent.prototype.get$button = function(receiver) {
+    return receiver.button;
+  };
   function Navigator() {
   }
   Navigator.builtin$cls = "Navigator";
@@ -9665,6 +9949,24 @@ function dart_precompiled($collectedClasses) {
   if ($desc instanceof Array)
     $desc = $desc[1];
   BoundClosure$1.prototype = $desc;
+  function Keyboard_init_closure() {
+  }
+  Keyboard_init_closure.builtin$cls = "Keyboard_init_closure";
+  if (!"name" in Keyboard_init_closure)
+    Keyboard_init_closure.name = "Keyboard_init_closure";
+  $desc = $collectedClasses.Keyboard_init_closure;
+  if ($desc instanceof Array)
+    $desc = $desc[1];
+  Keyboard_init_closure.prototype = $desc;
+  function Keyboard_init_closure0() {
+  }
+  Keyboard_init_closure0.builtin$cls = "Keyboard_init_closure0";
+  if (!"name" in Keyboard_init_closure0)
+    Keyboard_init_closure0.name = "Keyboard_init_closure0";
+  $desc = $collectedClasses.Keyboard_init_closure0;
+  if ($desc instanceof Array)
+    $desc = $desc[1];
+  Keyboard_init_closure0.prototype = $desc;
   function DroidAgeClient(socket, parser, game) {
     this.socket = socket;
     this.parser = parser;
@@ -11414,6 +11716,9 @@ function dart_precompiled($collectedClasses) {
   if ($desc instanceof Array)
     $desc = $desc[1];
   Duration.prototype = $desc;
+  Duration.prototype.get$_duration = function() {
+    return this._duration;
+  };
   function Duration_toString_sixDigits() {
   }
   Duration_toString_sixDigits.builtin$cls = "Duration_toString_sixDigits";
@@ -11912,6 +12217,17 @@ function dart_precompiled($collectedClasses) {
   if ($desc instanceof Array)
     $desc = $desc[1];
   convertNativeToDart_AcceptStructuredClone_walk.prototype = $desc;
+  function Vector2(_x, _y) {
+    this._x = _x;
+    this._y = _y;
+  }
+  Vector2.builtin$cls = "Vector2";
+  if (!"name" in Vector2)
+    Vector2.name = "Vector2";
+  $desc = $collectedClasses.Vector2;
+  if ($desc instanceof Array)
+    $desc = $desc[1];
+  Vector2.prototype = $desc;
   function Closure$0(call$0, $name) {
     this.call$0 = call$0;
     this.$name = $name;
@@ -11921,15 +12237,6 @@ function dart_precompiled($collectedClasses) {
   if ($desc instanceof Array)
     $desc = $desc[1];
   Closure$0.prototype = $desc;
-  function Closure$2(call$2, $name) {
-    this.call$2 = call$2;
-    this.$name = $name;
-  }
-  Closure$2.builtin$cls = "Closure$2";
-  $desc = $collectedClasses.Closure$2;
-  if ($desc instanceof Array)
-    $desc = $desc[1];
-  Closure$2.prototype = $desc;
   function Closure$1(call$1, $name) {
     this.call$1 = call$1;
     this.$name = $name;
@@ -11939,6 +12246,15 @@ function dart_precompiled($collectedClasses) {
   if ($desc instanceof Array)
     $desc = $desc[1];
   Closure$1.prototype = $desc;
+  function Closure$2(call$2, $name) {
+    this.call$2 = call$2;
+    this.$name = $name;
+  }
+  Closure$2.builtin$cls = "Closure$2";
+  $desc = $collectedClasses.Closure$2;
+  if ($desc instanceof Array)
+    $desc = $desc[1];
+  Closure$2.prototype = $desc;
   function Closure$7(call$7, $name) {
     this.call$7 = call$7;
     this.$name = $name;
@@ -11957,5 +12273,5 @@ function dart_precompiled($collectedClasses) {
   if ($desc instanceof Array)
     $desc = $desc[1];
   Closure$21.prototype = $desc;
-  return [HtmlElement, AnchorElement, AnimationEvent, AreaElement, AudioElement, AutocompleteErrorEvent, BRElement, BaseElement, BeforeLoadEvent, BeforeUnloadEvent, Blob, BodyElement, ButtonElement, CanvasElement, CanvasGradient, CanvasPattern, CanvasRenderingContext, CanvasRenderingContext2D, CloseEvent, CompositionEvent, ContentElement, CssFontFaceLoadEvent, CustomEvent, DListElement, DataListElement, DetailsElement, DeviceMotionEvent, DeviceOrientationEvent, DialogElement, DivElement, Document, DomError, DomException, Element, EmbedElement, ErrorEvent, Event, EventTarget, FieldSetElement, File, FileError, FocusEvent, FormElement, HRElement, HashChangeEvent, HeadElement, HeadingElement, HtmlDocument, HtmlHtmlElement, IFrameElement, ImageElement, InputElement, KeyboardEvent, KeygenElement, LIElement, LabelElement, LegendElement, LinkElement, MapElement, MediaElement, MediaError, MediaKeyError, MediaKeyEvent, MediaKeyMessageEvent, MediaKeyNeededEvent, MediaStream, MediaStreamEvent, MediaStreamTrackEvent, MenuElement, MessageEvent, MetaElement, MeterElement, MidiConnectionEvent, MidiMessageEvent, ModElement, MouseEvent, Navigator, NavigatorUserMediaError, Node, OListElement, ObjectElement, OptGroupElement, OptionElement, OutputElement, OverflowEvent, PageTransitionEvent, ParagraphElement, ParamElement, PopStateEvent, PositionError, PreElement, ProgressElement, ProgressEvent, QuoteElement, ResourceProgressEvent, RtcDataChannelEvent, RtcDtmfToneChangeEvent, RtcIceCandidateEvent, ScriptElement, SecurityPolicyViolationEvent, SelectElement, ShadowElement, SourceElement, SpanElement, SpeechInputEvent, SpeechRecognitionError, SpeechRecognitionEvent, SpeechSynthesisEvent, StorageEvent, StyleElement, TableCaptionElement, TableCellElement, TableColElement, TableElement, TableRowElement, TableSectionElement, TemplateElement, TextAreaElement, TextEvent, TitleElement, TouchEvent, TrackElement, TrackEvent, TransitionEvent, UIEvent, UListElement, UnknownElement, VideoElement, WebSocket, WheelEvent, Window, _HTMLAppletElement, _HTMLBaseFontElement, _HTMLDirectoryElement, _HTMLFontElement, _HTMLFrameElement, _HTMLFrameSetElement, _HTMLMarqueeElement, _MutationEvent, _XMLHttpRequestProgressEvent, VersionChangeEvent, AElement, AltGlyphElement, AnimateElement, AnimateMotionElement, AnimateTransformElement, AnimatedLength, AnimatedLengthList, AnimatedNumber, AnimatedNumberList, AnimationElement, CircleElement, ClipPathElement, DefsElement, DescElement, EllipseElement, FEBlendElement, FEColorMatrixElement, FEComponentTransferElement, FECompositeElement, FEConvolveMatrixElement, FEDiffuseLightingElement, FEDisplacementMapElement, FEDistantLightElement, FEFloodElement, FEFuncAElement, FEFuncBElement, FEFuncGElement, FEFuncRElement, FEGaussianBlurElement, FEImageElement, FEMergeElement, FEMergeNodeElement, FEMorphologyElement, FEOffsetElement, FEPointLightElement, FESpecularLightingElement, FESpotLightElement, FETileElement, FETurbulenceElement, FilterElement, ForeignObjectElement, GElement, GraphicsElement, ImageElement0, LineElement, LinearGradientElement, MarkerElement, MaskElement, MetadataElement, PathElement, PatternElement, PointList, PolygonElement, PolylineElement, RadialGradientElement, RectElement, ScriptElement0, SetElement, StopElement, StyleElement0, SvgElement, SvgSvgElement, SwitchElement, SymbolElement, TSpanElement, TextContentElement, TextElement, TextPathElement, TextPositioningElement, TitleElement0, UseElement, ViewElement, ZoomEvent, _GradientElement, _SVGAltGlyphDefElement, _SVGAltGlyphItemElement, _SVGAnimateColorElement, _SVGComponentTransferFunctionElement, _SVGCursorElement, _SVGFEDropShadowElement, _SVGFontElement, _SVGFontFaceElement, _SVGFontFaceFormatElement, _SVGFontFaceNameElement, _SVGFontFaceSrcElement, _SVGFontFaceUriElement, _SVGGlyphElement, _SVGGlyphRefElement, _SVGHKernElement, _SVGMPathElement, _SVGMissingGlyphElement, _SVGVKernElement, AudioProcessingEvent, OfflineAudioCompletionEvent, ContextEvent, RenderingContext, SqlError, ByteBuffer, TypedData, ByteData, Float32List, Float64List, Int16List, Int32List, Int8List, Uint16List, Uint32List, Uint8ClampedList, Uint8List, Game, Game_render_closure, GameTimer, BoundClosure$1, DroidAgeClient, DroidAgeClient_setup_closure, DroidAgeClient_setup__closure, DroidAgeClient_getParser_closure, DataParser, JS_CONST, Interceptor, JSBool, JSNull, JavaScriptObject, PlainJavaScriptObject, UnknownJavaScriptObject, JSArray, JSMutableArray, JSFixedArray, JSExtendableArray, JSNumber, JSInt, JSDouble, JSString, startRootIsolate_closure, startRootIsolate_closure0, _Manager, _IsolateContext, _EventLoop, _EventLoop__runHelper_next, _IsolateEvent, _MainManagerStub, IsolateNatives__processWorkerMessage_closure, _BaseSendPort, _NativeJsSendPort, _NativeJsSendPort_send_closure, _NativeJsSendPort_send__closure, _WorkerSendPort, _WorkerSendPort_send_closure, ReceivePortImpl, BoundClosure$i0, _waitForPendingPorts_closure, _PendingSendPortFinder, _JsSerializer, _JsCopier, _JsDeserializer, _JsVisitedMap, _MessageTraverserVisitedMap, _MessageTraverser, _Copier, _Copier_visitMap_closure, _Serializer, _Deserializer, TimerImpl, TimerImpl_internalCallback, TimerImpl_internalCallback0, TypeErrorDecoder, NullError, JsNoSuchMethodError, UnknownJsTypeError, unwrapException_saveStackTrace, _StackTrace, invokeClosure_closure, invokeClosure_closure0, invokeClosure_closure1, invokeClosure_closure2, invokeClosure_closure3, Closure, BoundClosure, TypeImpl, initHooks_closure, initHooks_closure0, initHooks_closure1, ListIterator, MappedIterable, EfficientLengthMappedIterable, MappedIterator, FixedLengthListMixin, _AsyncError, Future, Future_Future_closure, Future_wait_handleError, Future_wait_closure, _Completer, _AsyncCompleter, _Future, BoundClosure$2, _Future__addListener_closure, _Future__chainFutures_closure, _Future__chainFutures_closure0, _Future__asyncComplete_closure, _Future__asyncCompleteError_closure, _Future__propagateToListeners_closure, _Future__propagateToListeners_closure0, _Future__propagateToListeners__closure, _Future__propagateToListeners__closure0, Stream, Stream_forEach_closure, Stream_forEach__closure, Stream_forEach__closure0, Stream_forEach_closure0, Stream_length_closure, Stream_length_closure0, StreamSubscription, _StreamController, _StreamController__subscribe_closure, _StreamController__recordCancel_complete, _SyncStreamControllerDispatch, _AsyncStreamControllerDispatch, _AsyncStreamController, _StreamController__AsyncStreamControllerDispatch, _SyncStreamController, _StreamController__SyncStreamControllerDispatch, _ControllerStream, _ControllerSubscription, BoundClosure$0, _EventSink, _BufferingStreamSubscription, _BufferingStreamSubscription__sendDone_sendDone, _StreamImpl, _DelayedEvent, _DelayedData, _DelayedDone, _PendingEvents, _PendingEvents_schedule_closure, _StreamImplEvents, _cancelAndError_closure, _cancelAndErrorClosure_closure, _BaseZone, _BaseZone_bindCallback_closure, _BaseZone_bindCallback_closure0, _BaseZone_bindUnaryCallback_closure, _BaseZone_bindUnaryCallback_closure0, _rootHandleUncaughtError_closure, _rootHandleUncaughtError__closure, _RootZone, _HashMap, _HashMap_values_closure, HashMapKeyIterable, HashMapKeyIterator, _LinkedHashMap, _LinkedHashMap_values_closure, LinkedHashMapCell, LinkedHashMapKeyIterable, LinkedHashMapKeyIterator, _HashSet, _IdentityHashSet, HashSetIterator, _HashSetBase, IterableBase, ListMixin, Maps_mapToString_closure, ListQueue, _ListQueueIterator, NoSuchMethodError_toString_closure, DateTime, DateTime_toString_fourDigits, DateTime_toString_threeDigits, DateTime_toString_twoDigits, Duration, Duration_toString_sixDigits, Duration_toString_twoDigits, Error, NullThrownError, ArgumentError, RangeError, UnsupportedError, UnimplementedError, StateError, ConcurrentModificationError, StackOverflowError, CyclicInitializationError, _ExceptionImplementation, FormatException, Expando, Function, Iterator, Null, Object, StackTrace, StringBuffer, Symbol, EventStreamProvider, _EventStream, _EventStreamSubscription, ReceivePort, Point, TypedData_ListMixin, TypedData_ListMixin_FixedLengthListMixin, TypedData_ListMixin0, TypedData_ListMixin_FixedLengthListMixin0, TypedData_ListMixin1, TypedData_ListMixin_FixedLengthListMixin1, TypedData_ListMixin2, TypedData_ListMixin_FixedLengthListMixin2, TypedData_ListMixin3, TypedData_ListMixin_FixedLengthListMixin3, TypedData_ListMixin4, TypedData_ListMixin_FixedLengthListMixin4, TypedData_ListMixin5, TypedData_ListMixin_FixedLengthListMixin5, TypedData_ListMixin6, TypedData_ListMixin_FixedLengthListMixin6, TypedData_ListMixin7, TypedData_ListMixin_FixedLengthListMixin7, Int64List, Uint64List, convertNativeToDart_AcceptStructuredClone_findSlot, convertNativeToDart_AcceptStructuredClone_readSlot, convertNativeToDart_AcceptStructuredClone_writeSlot, convertNativeToDart_AcceptStructuredClone_walk, Closure$0, Closure$2, Closure$1, Closure$7, Closure$21];
+  return [HtmlElement, AnchorElement, AnimationEvent, AreaElement, AudioElement, AutocompleteErrorEvent, BRElement, BaseElement, BeforeLoadEvent, BeforeUnloadEvent, Blob, BodyElement, ButtonElement, CanvasElement, CanvasGradient, CanvasPattern, CanvasRenderingContext, CanvasRenderingContext2D, CloseEvent, CompositionEvent, ContentElement, CssFontFaceLoadEvent, CustomEvent, DListElement, DataListElement, DetailsElement, DeviceMotionEvent, DeviceOrientationEvent, DialogElement, DivElement, Document, DomError, DomException, Element, EmbedElement, ErrorEvent, Event, EventTarget, FieldSetElement, File, FileError, FocusEvent, FormElement, HRElement, HashChangeEvent, HeadElement, HeadingElement, HtmlDocument, HtmlHtmlElement, IFrameElement, ImageElement, InputElement, KeyboardEvent, KeygenElement, LIElement, LabelElement, LegendElement, LinkElement, MapElement, MediaElement, MediaError, MediaKeyError, MediaKeyEvent, MediaKeyMessageEvent, MediaKeyNeededEvent, MediaStream, MediaStreamEvent, MediaStreamTrackEvent, MenuElement, MessageEvent, MetaElement, MeterElement, MidiConnectionEvent, MidiMessageEvent, ModElement, MouseEvent, Navigator, NavigatorUserMediaError, Node, OListElement, ObjectElement, OptGroupElement, OptionElement, OutputElement, OverflowEvent, PageTransitionEvent, ParagraphElement, ParamElement, PopStateEvent, PositionError, PreElement, ProgressElement, ProgressEvent, QuoteElement, ResourceProgressEvent, RtcDataChannelEvent, RtcDtmfToneChangeEvent, RtcIceCandidateEvent, ScriptElement, SecurityPolicyViolationEvent, SelectElement, ShadowElement, SourceElement, SpanElement, SpeechInputEvent, SpeechRecognitionError, SpeechRecognitionEvent, SpeechSynthesisEvent, StorageEvent, StyleElement, TableCaptionElement, TableCellElement, TableColElement, TableElement, TableRowElement, TableSectionElement, TemplateElement, TextAreaElement, TextEvent, TitleElement, TouchEvent, TrackElement, TrackEvent, TransitionEvent, UIEvent, UListElement, UnknownElement, VideoElement, WebSocket, WheelEvent, Window, _HTMLAppletElement, _HTMLBaseFontElement, _HTMLDirectoryElement, _HTMLFontElement, _HTMLFrameElement, _HTMLFrameSetElement, _HTMLMarqueeElement, _MutationEvent, _XMLHttpRequestProgressEvent, VersionChangeEvent, AElement, AltGlyphElement, AnimateElement, AnimateMotionElement, AnimateTransformElement, AnimatedLength, AnimatedLengthList, AnimatedNumber, AnimatedNumberList, AnimationElement, CircleElement, ClipPathElement, DefsElement, DescElement, EllipseElement, FEBlendElement, FEColorMatrixElement, FEComponentTransferElement, FECompositeElement, FEConvolveMatrixElement, FEDiffuseLightingElement, FEDisplacementMapElement, FEDistantLightElement, FEFloodElement, FEFuncAElement, FEFuncBElement, FEFuncGElement, FEFuncRElement, FEGaussianBlurElement, FEImageElement, FEMergeElement, FEMergeNodeElement, FEMorphologyElement, FEOffsetElement, FEPointLightElement, FESpecularLightingElement, FESpotLightElement, FETileElement, FETurbulenceElement, FilterElement, ForeignObjectElement, GElement, GraphicsElement, ImageElement0, LineElement, LinearGradientElement, MarkerElement, MaskElement, MetadataElement, PathElement, PatternElement, PointList, PolygonElement, PolylineElement, RadialGradientElement, RectElement, ScriptElement0, SetElement, StopElement, StyleElement0, SvgElement, SvgSvgElement, SwitchElement, SymbolElement, TSpanElement, TextContentElement, TextElement, TextPathElement, TextPositioningElement, TitleElement0, UseElement, ViewElement, ZoomEvent, _GradientElement, _SVGAltGlyphDefElement, _SVGAltGlyphItemElement, _SVGAnimateColorElement, _SVGComponentTransferFunctionElement, _SVGCursorElement, _SVGFEDropShadowElement, _SVGFontElement, _SVGFontFaceElement, _SVGFontFaceFormatElement, _SVGFontFaceNameElement, _SVGFontFaceSrcElement, _SVGFontFaceUriElement, _SVGGlyphElement, _SVGGlyphRefElement, _SVGHKernElement, _SVGMPathElement, _SVGMissingGlyphElement, _SVGVKernElement, AudioProcessingEvent, OfflineAudioCompletionEvent, ContextEvent, RenderingContext, SqlError, ByteBuffer, TypedData, ByteData, Float32List, Float64List, Int16List, Int32List, Int8List, Uint16List, Uint32List, Uint8ClampedList, Uint8List, Game, Game_render_closure, GameTimer, BoundClosure$1, Keyboard_init_closure, Keyboard_init_closure0, DroidAgeClient, DroidAgeClient_setup_closure, DroidAgeClient_setup__closure, DroidAgeClient_getParser_closure, DataParser, JS_CONST, Interceptor, JSBool, JSNull, JavaScriptObject, PlainJavaScriptObject, UnknownJavaScriptObject, JSArray, JSMutableArray, JSFixedArray, JSExtendableArray, JSNumber, JSInt, JSDouble, JSString, startRootIsolate_closure, startRootIsolate_closure0, _Manager, _IsolateContext, _EventLoop, _EventLoop__runHelper_next, _IsolateEvent, _MainManagerStub, IsolateNatives__processWorkerMessage_closure, _BaseSendPort, _NativeJsSendPort, _NativeJsSendPort_send_closure, _NativeJsSendPort_send__closure, _WorkerSendPort, _WorkerSendPort_send_closure, ReceivePortImpl, BoundClosure$i0, _waitForPendingPorts_closure, _PendingSendPortFinder, _JsSerializer, _JsCopier, _JsDeserializer, _JsVisitedMap, _MessageTraverserVisitedMap, _MessageTraverser, _Copier, _Copier_visitMap_closure, _Serializer, _Deserializer, TimerImpl, TimerImpl_internalCallback, TimerImpl_internalCallback0, TypeErrorDecoder, NullError, JsNoSuchMethodError, UnknownJsTypeError, unwrapException_saveStackTrace, _StackTrace, invokeClosure_closure, invokeClosure_closure0, invokeClosure_closure1, invokeClosure_closure2, invokeClosure_closure3, Closure, BoundClosure, TypeImpl, initHooks_closure, initHooks_closure0, initHooks_closure1, ListIterator, MappedIterable, EfficientLengthMappedIterable, MappedIterator, FixedLengthListMixin, _AsyncError, Future, Future_Future_closure, Future_wait_handleError, Future_wait_closure, _Completer, _AsyncCompleter, _Future, BoundClosure$2, _Future__addListener_closure, _Future__chainFutures_closure, _Future__chainFutures_closure0, _Future__asyncComplete_closure, _Future__asyncCompleteError_closure, _Future__propagateToListeners_closure, _Future__propagateToListeners_closure0, _Future__propagateToListeners__closure, _Future__propagateToListeners__closure0, Stream, Stream_forEach_closure, Stream_forEach__closure, Stream_forEach__closure0, Stream_forEach_closure0, Stream_length_closure, Stream_length_closure0, StreamSubscription, _StreamController, _StreamController__subscribe_closure, _StreamController__recordCancel_complete, _SyncStreamControllerDispatch, _AsyncStreamControllerDispatch, _AsyncStreamController, _StreamController__AsyncStreamControllerDispatch, _SyncStreamController, _StreamController__SyncStreamControllerDispatch, _ControllerStream, _ControllerSubscription, BoundClosure$0, _EventSink, _BufferingStreamSubscription, _BufferingStreamSubscription__sendDone_sendDone, _StreamImpl, _DelayedEvent, _DelayedData, _DelayedDone, _PendingEvents, _PendingEvents_schedule_closure, _StreamImplEvents, _cancelAndError_closure, _cancelAndErrorClosure_closure, _BaseZone, _BaseZone_bindCallback_closure, _BaseZone_bindCallback_closure0, _BaseZone_bindUnaryCallback_closure, _BaseZone_bindUnaryCallback_closure0, _rootHandleUncaughtError_closure, _rootHandleUncaughtError__closure, _RootZone, _HashMap, _HashMap_values_closure, HashMapKeyIterable, HashMapKeyIterator, _LinkedHashMap, _LinkedHashMap_values_closure, LinkedHashMapCell, LinkedHashMapKeyIterable, LinkedHashMapKeyIterator, _HashSet, _IdentityHashSet, HashSetIterator, _HashSetBase, IterableBase, ListMixin, Maps_mapToString_closure, ListQueue, _ListQueueIterator, NoSuchMethodError_toString_closure, DateTime, DateTime_toString_fourDigits, DateTime_toString_threeDigits, DateTime_toString_twoDigits, Duration, Duration_toString_sixDigits, Duration_toString_twoDigits, Error, NullThrownError, ArgumentError, RangeError, UnsupportedError, UnimplementedError, StateError, ConcurrentModificationError, StackOverflowError, CyclicInitializationError, _ExceptionImplementation, FormatException, Expando, Function, Iterator, Null, Object, StackTrace, StringBuffer, Symbol, EventStreamProvider, _EventStream, _EventStreamSubscription, ReceivePort, Point, TypedData_ListMixin, TypedData_ListMixin_FixedLengthListMixin, TypedData_ListMixin0, TypedData_ListMixin_FixedLengthListMixin0, TypedData_ListMixin1, TypedData_ListMixin_FixedLengthListMixin1, TypedData_ListMixin2, TypedData_ListMixin_FixedLengthListMixin2, TypedData_ListMixin3, TypedData_ListMixin_FixedLengthListMixin3, TypedData_ListMixin4, TypedData_ListMixin_FixedLengthListMixin4, TypedData_ListMixin5, TypedData_ListMixin_FixedLengthListMixin5, TypedData_ListMixin6, TypedData_ListMixin_FixedLengthListMixin6, TypedData_ListMixin7, TypedData_ListMixin_FixedLengthListMixin7, Int64List, Uint64List, convertNativeToDart_AcceptStructuredClone_findSlot, convertNativeToDart_AcceptStructuredClone_readSlot, convertNativeToDart_AcceptStructuredClone_writeSlot, convertNativeToDart_AcceptStructuredClone_walk, Vector2, Closure$0, Closure$1, Closure$2, Closure$7, Closure$21];
 }

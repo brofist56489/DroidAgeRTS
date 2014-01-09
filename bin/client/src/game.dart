@@ -7,6 +7,8 @@ class Game {
 	List<Point> points = new List<Point>();
 	
 	void init() {
+		Mouse.init();
+		Keyboard.init();
 		Display.init();
 		client = new DroidAgeClient(this);
 	}
@@ -17,7 +19,7 @@ class Game {
 	}
 
 	void tick() {
-		
+		Keyboard.poll();
 	}
 	
 	void render() {
@@ -25,6 +27,7 @@ class Game {
 		points.forEach((Point p) {
 			Display.renderRect(p.x, p.y, 20, 20, color: "red", fill: true);
 		});
+		Display.renderRect(Mouse.getPos().x, Mouse.getPos().y, 5, 5, color: "white", fill: true);
 	}
 	
 	void addPoint(int x, int y) {

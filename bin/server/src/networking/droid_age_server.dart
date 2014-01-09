@@ -44,7 +44,7 @@ class DroidAgeServer {
 				clients.add(s);
 				s.listen((String e) {
 					this.getParser().then((DataParser parser) {
-						parser.parseData(e, this);
+						parser.parseData(e, this, s);
 					});
 				});
 				
@@ -69,7 +69,7 @@ class DroidAgeServer {
 }
 
 class DataParser {
-	void parseData(String str, DroidAgeServer server) {
+	void parseData(String str, DroidAgeServer server, WebSocket socket) {
 		print("Parsing $str");
 	}
 }
